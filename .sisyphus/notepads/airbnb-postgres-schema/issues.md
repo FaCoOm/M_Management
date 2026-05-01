@@ -15,3 +15,8 @@ Task 3: running `supabase_apply_migration` in parallel can collide on `schema_mi
 
 - Task 4: SQL verification with data-modifying CTEs can under-report newly inserted allocation counts when you re-scan the base table in the same statement snapshot; a follow-up query against the persisted row is safer for evidence.
 - Task 4 correction issue: the first evidence pass removed the proof rows after verification, so `supabase_list_tables` and direct confirmation-code queries showed zero live reservation evidence even though the artifact files still claimed those rows existed.
+- Task 5: this shell has no local Supabase CLI, `psql`, or Supabase env vars, so live SQL evidence could not be executed here; verification has to rely on repo-local checks plus future database execution.
+
+- Task 6: this shell still has no local Supabase CLI or `psql`, so `.sisyphus/evidence/task-6-backfill*.json` records executable SQL checks instead of claiming live database execution.
+
+- Task 7: reservation rows only carry stay dates, not legacy ETA/ETD times; the frontend compatibility view maps dates into `eta`/`etd` fields for current panels, so richer arrival/departure time modeling remains a future contract decision.

@@ -10,3 +10,4 @@ Task 3: the source exports still show overlapping real-world naming patterns (`C
 
 - Task 4: the core schema still cannot prove that every row in `reservation_room_allocations` belongs to the same property as its parent reservation without either an extra property-scoped column or a trigger; the current migration keeps the model additive and leaves that stronger cross-table enforcement to later work if needed.
 - Task 4 correction follow-up: because the proof rows now intentionally remain in the shared Supabase environment, later tasks should either reuse these rows carefully or delete/reseed them deliberately rather than assuming the reservation tables start empty.
+- Task 5: without a reachable database client in this shell, the request-to-reservation and maintenance QA scenarios cannot be run live from here; the migration still records the required compatibility contract.

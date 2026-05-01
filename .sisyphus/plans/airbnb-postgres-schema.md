@@ -538,7 +538,7 @@ Wave 3: Track B branch scaffold, auth strategy, seed/policy/docs/branch closeout
 
   **Commit**: YES | Message: `refactor(app): add branch-neutral data layer` | Files: [`src/api/*`, `src/hooks/*`, `src/lib/*`, `.sisyphus/evidence/task-9-repository-layer.md`]
 
-- [ ] 10. Prepare the Track B sub-branch/worktree backend scaffold and schema mirror
+- [x] 10. Prepare the Track B sub-branch/worktree backend scaffold and schema mirror
 
   **What to do**: Create the Sprint 1 Track B foundation in an isolated branch/worktree: initialize the Node.js backend structure, choose the backend framework from the PRD default (Express.js unless existing repo constraints strongly favor NestJS), add Prisma (or Drizzle only if explicitly justified), and mirror the Track A balanced-core schema contract in ORM form. Document environment variables, migration commands, and how the Track B API must satisfy the shared frontend repository contract.
   **Must NOT do**: Do not let Track B invent a different schema vocabulary from Track A. Do not skip ORM schema parity. Do not require Azure-specific provisioning to validate code structure inside the repo.
@@ -577,7 +577,7 @@ Wave 3: Track B branch scaffold, auth strategy, seed/policy/docs/branch closeout
 
   **Commit**: YES | Message: `feat(track-b): scaffold custom backend foundation` | Files: [`<track-b-worktree>/*`, `.sisyphus/evidence/task-10-track-b-scaffold.md`]
 
-- [ ] 11. Complete Sprint 1 authentication UI and branch-aware auth adapter boundaries
+- [x] 11. Complete Sprint 1 authentication UI and branch-aware auth adapter boundaries
 
   **What to do**: Implement Story-02 and Sprint 1 Task 4 by creating the shared authentication UI plus adapter boundaries for Track A and Track B. On Track A, wire the UI to Supabase Auth. On Track B, define the adapter interface and placeholder/provider wiring assumptions for Clerk/Auth0 so the UI does not need redesign later. Keep data-layer auth assumptions isolated from the balanced-core operations schema because auth tables are explicitly out of scope for this schema plan.
   **Must NOT do**: Do not blend application-role tables into the operations schema. Do not hard-code the UI directly to one auth provider without an adapter boundary.
@@ -616,7 +616,7 @@ Wave 3: Track B branch scaffold, auth strategy, seed/policy/docs/branch closeout
 
   **Commit**: YES | Message: `feat(auth): add branch-aware auth ui` | Files: [`src/components/*`, `src/lib/*`, `.sisyphus/evidence/task-11-auth-ui.md`]
 
-- [ ] 12. Close Sprint 1 with branch matrix, docs, and implementation readiness verification
+- [x] 12. Close Sprint 1 with branch matrix, docs, and implementation readiness verification
 
   **What to do**: Update the docs and branch matrix so Sprint 1 is explicitly complete for both tracks: current-schema gap audit, Track A balanced-core schema, shared repository layer, Track B scaffold, and auth UI. Document which artifacts live on main vs sub-branch/worktree, what remains deferred to Sprint 2, and how future branch inquiries should be answered. Ensure the docs are clear that Track A is executable now and Track B is scaffolded to the agreed Sprint 1 parity level.
   **Must NOT do**: Do not leave branch ownership ambiguous. Do not describe Sprint 2 ingestion work as already complete. Do not let stale docs conflict with the new dual-track plan.
