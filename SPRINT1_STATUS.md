@@ -1,65 +1,29 @@
-# Sprint 1 Closeout — 2026-05-01
+# Sprint 1 Status — 2026-04-30
 
-## Completion Status: COMPLETE — 12/12 Tasks
+## What exists
 
-## Tasks Completed
+### Schema (migration applied)
+- `supabase/migrations/20260430095000_001_add_reservation_core.sql` — all 3 tables DDL confirmed correct
+- `reservations` ✓
+- `reservation_external_refs` ✓
+- `reservation_room_allocations` ✓
 
-| # | Task | Status |
-|---|------|--------|
-| 0 | Schema gap audit | ✅ |
-| 1 | Canonical v1 schema contract | ✅ |
-| 2 | Channel registry + external accounts | ✅ |
-| 3 | Channel listings + aliases + room mappings | ✅ |
-| 4 | Reservation core + external refs + room allocations | ✅ |
-| 5 | Guest request bridges | ✅ |
-| 6 | Legacy guest backfill + import mapping | ✅ |
-| 7 | Frontend types + hook migration | ✅ |
-| 8 | Schema docs + RLS + indexing | ✅ |
-| 9 | Repository layer | ✅ |
-| 10 | Track B scaffold | ✅ |
-| 11 | Auth UI + adapter | ✅ |
-| 12 | Sprint closeout | ✅ |
+### DB state
+- All 3 tables exist but contain **0 rows**
+- No seed data has been inserted
 
-## Verification Results
+## Where we stopped
+Task 4 verification was blocked because seed data was never inserted into the new tables.
+The plan claims data exists but the DB is empty — this is the evidence gap.
 
-- `npm run typecheck`: ✅ PASS
-- `npm run build`: ✅ PASS
+## What needs to happen next
+1. Insert seed data into `reservations`, `reservation_external_refs`, `reservation_room_allocations`
+2. Re-verify all 3 scenarios (single-room, composite, unmapped)
+3. Continue Tasks 5–17
 
-## Key Deliverables
+## Plan file
+`.sisyphus/plans/airbnb-postgres-schema.md`
 
-### SQL Migrations (7 files)
-- Original schema + seed
-- Channel/account layer
-- Listing/mapping layer
-- Reservation core
-- Guest request bridges
-- Backfill/import mapping
-
-### Frontend (Track A)
-- `src/types/database.ts` — Reservation types added
-- `src/hooks/use-dashboard-data.ts` — Migrated to reservations
-- `src/lib/repositories/` — Repository abstraction layer
-- `src/lib/auth/ — Auth adapter interface
-- `src/components/auth/login-form.tsx` — Login UI
-
-### Track B Worktree
-- `M_Management-track-b/` — Isolated worktree
-- `backend/prisma/schema.prisma` — ORM mirror
-- `backend/src/index.ts` — Express server scaffold
-
-## Deferred to Sprint 2
-- PMS `stays`, `folios`, `charges`
-- Room moves
-- Owner statements
-- Auth RBAC (Track B)
-
-## Branch Ownership
-
-| Artifact | Branch |
-|---------|--------|
-| Supabase schema + migrations | Main |
-| Frontend Track A | Main |
-| Repository layer | Main |
-| Auth adapter (Track A) | Main |
-| Track B backend scaffold | `track-b` worktree |
-| Prisma schema mirror | `track-b` worktree |
+## Relevant prior sessions (from context)
+- `ses_22...` — created the migration, then subagent fix attempt aborted
+- 5-session backlog shows Tasks 0–3 were completed across sessions `ses_21...` and `ses_22...`

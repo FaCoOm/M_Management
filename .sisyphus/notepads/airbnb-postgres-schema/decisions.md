@@ -17,9 +17,3 @@ Task 3: `listing_room_mappings` uses a partial unique index on active `(channel_
 - Task 4: `reservations` stays provider-neutral and only stores the normalized operational booking truth (`property_id`, local stay dates, guest snapshot, operational notes, normalized `status`); provider reservation IDs, confirmation codes, raw statuses, and payload metadata live exclusively in `reservation_external_refs`.
 - Task 4: duplicate room allocation prevention is enforced with a hard unique constraint on `(reservation_id, room_id)` rather than a soft application check, so one reservation can span many rooms without allowing duplicate pairs.
 - Task 4 correction decision: keep two durable proof reservations in the database (`HMX44ZA85B` mapped, `TASK4-UNMAPPED-LISTING` unmapped) so Task 4 evidence remains queryable and the duplicate-allocation check can run against a real persisted reservation.
-- Task 5: bridge `guest_requests` to `reservations` and `properties` with nullable additive columns plus repeat-safe FKs/indexes; do not remove `guest_id` until the frontend cutover is done.
-
-- Task 6: store provider reservation imports in `provider_reservation_import_rows` first, then resolve only by exact `(external_account_id, provider_listing_id)` or exact active `channel_listing_aliases.alias_value`; never fall back to direct/fuzzy listing-title matching.
-- Task 6: keep CSV Earnings values inside raw provider JSON (`provider_reservation_import_rows.raw_payload` and `reservation_external_refs.payload_metadata`) and do not add normalized money-management columns or tables in v1.
-
-- Task 7: keep `Guest` as a UI-facing compatibility alias (`DashboardGuest`) while `Reservation` becomes the exposed booking contract; this avoids dashboard/rooms/reservations/guest-page UI churn before the later repository/query abstraction task.

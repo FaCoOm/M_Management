@@ -236,38 +236,6 @@ The repo includes SQL migrations under `supabase/migrations`.
 - RLS enabled on all core tables
 - Public read demo policies currently present for dashboard access
 
-### V1 Schema (Sprint 1)
-
-The following tables were added in Sprint 1 for the balanced-core reservation schema:
-
-**Provider Edge:**
-- `channels` — provider/platform registry (Airbnb, Booking.com, etc.)
-- `external_accounts` — credentials per provider per account (account_key: main/ruby/manuka22)
-- `channel_listings` — durable `(external_account_id, provider_listing_id)` identity per listing
-- `channel_listing_aliases` — exact-match reconciliation for listing title variations
-- `listing_room_mappings` — canonical listing to room associations
-
-**Reservation Core:**
-- `reservations` — authoritative operational booking source (replaced legacy `guests` table)
-- `reservation_external_refs` — provider raw reservation IDs and statuses
-- `reservation_room_allocations` — multi-room allocation support per reservation
-
-**Import/Staging:**
-- `provider_reservation_import_rows` — staging for CSV imports
-- `provider_reservation_import_report` — import results and error tracking
-- `provider_reservation_unmapped_imports` — rows that failed to resolve
-
-### Deferred: PMS Path
-
-Future Sprint 2+ extensions (NOT in v1):
-- `stays` — extends `reservations` for full PMS lifecycle
-- `folios` and `charges` — billing per stay
-- `room_moves` — intra-reservation room changes
-- `owner_statements` —财务/owner reporting
-- `brands` — multi-brand management
-
-These extend v1 rather than replace it.
-
 ### Important note for schema changes
 
 If you change schema or field names in migrations, you also need to update:

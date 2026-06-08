@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { createSupabaseRepositories } from "@/lib/repositories";
+import { supabase } from "@/lib/supabase";
 import type {
   Property,
   Room,
@@ -7,73 +7,11 @@ import type {
   GuestRequest,
   MaintenanceIssue,
   PropertyMetrics,
-  Reservation,
-  ReservationStatus,
 } from "@/types/database";
-
-// Repository factory - swap createSupabaseRepositories() for Track B equivalent
-const repos = createSupabaseRepositories();
-
-const ARRIVAL_RESERVATION_STATUSES: ReservationStatus[] = [
-  "pending",
-  "check_in_pending",
-];
-
-const DEPARTURE_RESERVATION_STATUSES: ReservationStatus[] = [
-  "check_out_pending",
-];
-
-const LEGACY_BOOKING_SOURCE_PATTERN = /booking_source=([^;]+)/i;
-const LEGACY_VIP_PATTERN = /is_vip=true/i;
-
-function toCompatibilityDate(date: string) {
-  return `${date}T00:00:00`;
-}
-
-function toCompatibilityStatus(status: ReservationStatus): Guest["check_in_status"] {
-  switch (status) {
-    case "check_in_pending":
-      return "Check-In Pending";
-    case "checked_in":
-      return "Checked In";
-    case "check_out_pending":
-      return "Check-Out Pending";
-    case "checked_out":
-    case "cancelled":
-    case "no_show":
-      return "Checked Out";
-    case "pending":
-    default:
-      return "Pending";
-  }
-}
-
-function getCompatibilityBookingSource(reservation: Reservation) {
-  const source = reservation.operational_notes.match(LEGACY_BOOKING_SOURCE_PATTERN)?.[1]?.trim();
-  return source || "Reservation";
-}
-
-function toDashboardGuest(reservation: Reservation): Guest {
-  return {
-    id: reservation.id,
-    reservation_id: reservation.id,
-    property_id: reservation.property_id,
-    room_id: reservation.primary_room_id,
-    guest_name: reservation.guest_name,
-    eta: toCompatibilityDate(reservation.check_in_date),
-    etd: toCompatibilityDate(reservation.check_out_date),
-    check_in_status: toCompatibilityStatus(reservation.status),
-    booking_source: getCompatibilityBookingSource(reservation),
-    is_vip: LEGACY_VIP_PATTERN.test(reservation.operational_notes),
-    guest_count: reservation.guest_count,
-    created_at: reservation.created_at,
-  };
-}
 
 interface DashboardData {
   properties: Property[];
   rooms: Room[];
-  reservations: Reservation[];
   guests: Guest[];
   requests: GuestRequest[];
   maintenance: MaintenanceIssue[];
@@ -90,37 +28,35 @@ interface DashboardData {
 export function useDashboardData(): DashboardData {
   const [properties, setProperties] = useState<Property[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
-  const [reservations, setReservations] = useState<Reservation[]>([]);
+  const [guests, setGuests] = useState<Guest[]>([]);
   const [requests, setRequests] = useState<GuestRequest[]>([]);
   const [maintenance, setMaintenance] = useState<MaintenanceIssue[]>([]);
   const [loading, setLoading] = useState(true);
 
-useEffect(() => {
+  useEffect(() => {
     async function fetchAll() {
-      const [propRes, roomRes, reservationRes, reqRes, maintRes] = await Promise.all([
-        repos.properties.getAll(),
-        repos.rooms.getAll(),
-        repos.reservations.getAll(),
-        repos.guestRequests.getAll(),
-        repos.maintenance.getAll(),
+      const [propRes, roomRes, guestRes, reqRes, maintRes] = await Promise.all([
+        supabase.from("properties").select("*").order("name"),
+        supabase.from("rooms").select("*"),
+        supabase.from("guests").select("*").order("eta"),
+        supabase.from("guest_requests").select("*"),
+        supabase.from("maintenance_issues").select("*").order("created_at", { ascending: false }),
       ]);
 
-      setProperties(propRes);
-      setRooms(roomRes);
-      setReservations(reservationRes);
-      setRequests(reqRes);
-      setMaintenance(maintRes);
+      if (propRes.data) setProperties(propRes.data);
+      if (roomRes.data) setRooms(roomRes.data);
+      if (guestRes.data) setGuests(guestRes.data);
+      if (reqRes.data) setRequests(reqRes.data);
+      if (maintRes.data) setMaintenance(maintRes.data);
       setLoading(false);
     }
 
     fetchAll();
   }, []);
 
-  const guests = reservations.map(toDashboardGuest);
-
   const metrics: PropertyMetrics[] = properties.map((prop) => {
     const propRooms = rooms.filter((r) => r.property_id === prop.id);
-    const propReservations = reservations.filter((r) => r.property_id === prop.id);
+    const propGuests = guests.filter((g) => g.property_id === prop.id);
     const propMaint = maintenance.filter((m) => m.property_id === prop.id);
 
     const occupied = propRooms.filter((r) =>
@@ -131,11 +67,11 @@ useEffect(() => {
 
     return {
       property: prop,
-      arrivals: propReservations.filter((r) =>
-        ARRIVAL_RESERVATION_STATUSES.includes(r.status)
+      arrivals: propGuests.filter((g) =>
+        ["Pending", "Check-In Pending"].includes(g.check_in_status)
       ).length,
-      departures: propReservations.filter((r) =>
-        DEPARTURE_RESERVATION_STATUSES.includes(r.status)
+      departures: propGuests.filter((g) =>
+        ["Check-Out Pending"].includes(g.check_in_status)
       ).length,
       occupancyRate: Math.round((occupied / totalRooms) * 100),
       occupiedRooms: occupied,
@@ -158,7 +94,6 @@ useEffect(() => {
   return {
     properties,
     rooms,
-    reservations,
     guests,
     requests,
     maintenance,

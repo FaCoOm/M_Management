@@ -17,9 +17,3 @@ Task 3: composite inventory does not require fake `rooms` rows — the seeded `L
 - Task 4: the reservation core can preserve dashboard-era convenience without breaking normalization by keeping a nullable `reservations.primary_room_id` for simple reads while enforcing real room assignment through `reservation_room_allocations`.
 - Task 4: provider/account/listing integrity on `reservation_external_refs` is safer when the row carries the owning `external_account_id` and uses a nullable `channel_listing_id`, so unmapped imports can be stored without inventing fake room or listing matches.
 - Task 4 correction: proof/evidence rows for schema verification must remain persisted if later reviewers are expected to query them directly; deleting them after verification makes the evidence artifacts false even when the migration itself is valid.
-- Task 5: `guest_requests` can gain reservation/property bridges additively by keeping `guest_id` intact and making the new foreign keys nullable with `ON DELETE SET NULL`.
-
-- Task 6: legacy `guests` backfill is repeat-safe when every migrated row is recorded in `legacy_guest_reservation_backfills`; the bridge documents the explicit mapping from legacy property/room/status/date/headcount fields into `reservations` and `reservation_room_allocations`.
-- Task 6: provider reservation CSV rows need their own staging table because `reservations.property_id` is required; rows with unknown listing aliases cannot become core reservations until an exact listing alias and active room mapping exist.
-
-- Task 7: the dashboard frontend can cut over to `reservations` with minimal UI churn by reading `reservations` in `useDashboardData`, deriving a guest-shaped compatibility list for existing panels, and computing arrivals/departures directly from normalized reservation statuses.
